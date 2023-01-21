@@ -1,12 +1,11 @@
-import { getCosts, postDeposits, postExits } from "../controllers/transactions.controller.js";
+import { getAllTransactions, newTransaction } from "../controllers/transactions.controller.js";
 import {Router} from "express";
-import {validateToken} from "../midlleware/validate.token.middleware.js";
+import {validateTokenForTransaction, validateTransaction,} from "../midlleware/validations.middleware.js";
+
 const router = Router();
-router.use(validateToken)
-router.post("/deposit", postDeposits)
 
-router.post("/exits", postExits)
+router.post("/transactions", validateTokenForTransaction, validateTransaction, newTransaction);
 
-router.get("/home", getCosts)
+router.get("/transactions", validateTokenForTransaction, getAllTransactions);
 
 export default router;
