@@ -1,6 +1,6 @@
 import { getAllTransactions, newTransaction } from "../controllers/transactions.controller.js";
-import {Router} from "express";
-import {validateTokenForTransaction, validateTransaction,} from "../midlleware/validations.middleware.js";
+import { Router } from "express";
+import { validateTokenForTransaction, validateTransaction, } from "../midlleware/validations.middleware.js";
 
 const router = Router();
 

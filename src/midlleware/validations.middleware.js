@@ -7,88 +7,99 @@ import dayjs from "dayjs";
 export function validateToken(req, res, next) {
     const { authorization } = req.headers;
     const token = authorization?.replace("Bearer ", "");
+
     if (!token) {
         return false;
     }
+
     next()
 }
-export function validateNewUser (req, res, next){
+export function validateNewUser(req, res, next) {
     const user = req.body;
-    const {error} = newUserValidationSchema.validate(user, {abortEarly: false});
-    if (error){
+    const { error } = newUserValidationSchema.validate(user, { abortEarly: false });
+
+    if (error) {
         const errors = error.details.map(detail => detail.message);
         return res.status(400).send(errors);
     }
+
     res.locals.user = user;
     next();
 }
-export async function validateLogin (req, res, next){
-    const {email, password} = req.body;
-    try{
-        const user = await db.collection("customers").findOne({email});
-        if(!user){
+export async function validateLogin(req, res, next) {
+    const { email, password } = req.body;
+
+    try {
+        const user = await db.collection("customers").findOne({ email });
+
+        if (!user) {
             return res.sendStatus(401);
         }
+
         const checkPassword = bcrypt.compareSync(password, user.password);
-        if(!checkPassword){
+
+        if (!checkPassword) {
             return res.sendStatus(401);
         }
+
         res.locals.user = user;
-        console.log(user)
-     }
-    catch (err){
+    }
+    catch (err) {
         console.log(err);
         return res.sendstatus(500);
     }
     next();
 }
-export async function validateTokenForTransaction (req, res, next){
+export async function validateTokenForTransaction(req, res, next) {
     const { authorization } = req.headers;
     const token = authorization?.replace('Bearer ', '');
-    console.log(token)
+
     if (!token) return res.sendStatus(401);
-    try{
+
+    try {
         const sessions = await db.collection("sessions").findOne({ token });
-        console.log(sessions)
-        if(!sessions){
+
+
+        if (!sessions) {
             return res.sendStatus(401);
         }
-        const user = await db.collection("customers").findOne({_id: sessions?.userId});
-        console.log("Middle use")
-        console.log(user)
-        if(!user){
+
+        const user = await db.collection("customers").findOne({ _id: sessions?.userId });
+
+        if (!user) {
             return res.sendStatus(401);
         }
+
         res.locals.user = user;
-    } catch (err){
+    } catch (err) {
         console.log(err);
         return res.sendStatus(500);
     }
     next();
 }
-export async function validateTransaction (req, res, next){
+export async function validateTransaction(req, res, next) {
     const { type, value, description } = req.body;
     const user = res.locals.user;
 
-    try{
+    try {
         const transaction = {
             type,
             date: dayjs().format("DD/MM"),
-            description,        
+            description,
             value,
-            user: user._id,       
+            user: user._id,
         }
-        const {error} = newTransactionSchema.validate(transaction, {abortEarly: false});
-        if (error){
+        const { error } = newTransactionSchema.validate(transaction, { abortEarly: false });
+        if (error) {
             const errors = error.details.map(detail => detail.message);
             return res.status(400).send(errors);
         }
-        
-    res.locals.transaction = transaction;
-    } catch (err){       
+
+        res.locals.transaction = transaction;
+    } catch (err) {
         console.log(err);
         return res.sendStatus(500);
     }
-    
+
     next();
 }

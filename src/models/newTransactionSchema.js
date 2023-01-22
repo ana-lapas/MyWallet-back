@@ -6,4 +6,4 @@ export const newTransactionSchema = joi.object({
     description: joi.string().required().min(3),
     value: joi.number().required(),
     user: joi.object().required(),
-});
+}); 
